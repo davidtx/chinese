@@ -90,6 +90,7 @@
   const hintToggleInput = document.getElementById('hint-toggle-input');
   const hintLabel = document.getElementById('hint-label');
   const langToggleBtn = document.getElementById('lang-toggle');
+  const langToggleInputBtn = document.getElementById('lang-toggle-input');
   const charBox = document.getElementById('char-box');
   const btnClear = document.getElementById('btn-clear');
   const btnNext = document.getElementById('btn-next');
@@ -120,6 +121,7 @@
     btnBackInput2.title = t('back');
     hintLabel.textContent = t('hint');
     langToggleBtn.textContent = t('langToggleLabel');
+    langToggleInputBtn.textContent = t('langToggleLabel');
     btnClear.textContent = t('clear');
     btnNext.textContent =
       currentChars.length && currentIndex === currentChars.length - 1 ? t('done') : t('next');
@@ -129,7 +131,7 @@
     updateMistakesText();
   }
 
-  langToggleBtn.addEventListener('click', () => {
+  function toggleLanguage() {
     lang = lang === 'en' ? 'zh' : 'en';
     localStorage.setItem('hanzi-lang', lang);
     applyLanguage();
@@ -139,7 +141,10 @@
     if (screens.history.classList.contains('active')) {
       renderHistory();
     }
-  });
+  }
+
+  langToggleBtn.addEventListener('click', toggleLanguage);
+  langToggleInputBtn.addEventListener('click', toggleLanguage);
 
   // ---- 输入页 ----
   btnStart.addEventListener('click', () => {

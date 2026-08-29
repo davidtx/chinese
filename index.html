@@ -13,7 +13,11 @@
   <!-- 屏幕一：输入页 -->
   <section id="screen-input" class="screen active">
     <div class="card">
-      <h1 id="app-title">Chinese Character Tracing</h1>
+      <div class="card-header">
+        <span class="lang-toggle-spacer" aria-hidden="true"></span>
+        <h1 id="app-title">Chinese Character Tracing</h1>
+        <button id="lang-toggle-input" class="lang-toggle" type="button">中文</button>
+      </div>
       <p class="hint" id="app-subtitle">Enter Chinese characters to trace them one by one</p>
       <textarea id="input-text" placeholder="e.g. 春眠不觉晓" rows="2"></textarea>
       <p id="input-error" class="error-msg"></p>

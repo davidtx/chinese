@@ -78,6 +78,27 @@ html, body {
   font-size: 26px;
 }
 
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.card-header h1 {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-header .lang-toggle {
+  flex-shrink: 0;
+  width: 58px;
+}
+
+.lang-toggle-spacer {
+  width: 58px;
+  flex-shrink: 0;
+}
+
 .hint {
   color: #888;
   margin: 0 0 20px;
