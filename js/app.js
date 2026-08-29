@@ -1,6 +1,8 @@
 // 主应用逻辑
 (function () {
   const CJK_REGEX = /[\u4e00-\u9fff]/;
+  const DRAWING_WIDTH = 28;
+  const REFERENCE_COLOR = '#f0a8a8'; // 效果图里字帖参考笔画的颜色（淡红色）
 
   // ---- 状态 ----
   let currentPractice = null; // { id, text, createdAt, chars: [] }
@@ -119,7 +121,7 @@
       strokeColor: '#2b2b2b',
       outlineColor: '#dddddd',
       highlightColor: '#8aa9f7',
-      drawingWidth: 8,
+      drawingWidth: DRAWING_WIDTH,
       highlightOnComplete: false,
     });
 
@@ -185,7 +187,31 @@
       clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
       clone.setAttribute('width', charBoxSize);
       clone.setAttribute('height', charBoxSize);
-      const svgString = new XMLSerializer().serializeToString(clone);
+
+      // hanzi-writer 写对一笔后，会把用户实际写下的笔迹淡出（drawingFadeDuration），
+      // 换成它自己“标准”的笔画形状；克隆到的 DOM 里用户笔迹的 opacity 已经是 0。
+      // 这些路径本身的形状（d 属性）是对的，只是被淡出了，所以只需要把透明度改回来即可，
+      // 不需要也不应该自己重新计算路径坐标（尝试过，坐标系对不上，画出来的位置完全错误）。
+      const drawnPaths = clone.querySelectorAll('path[stroke-width="' + DRAWING_WIDTH + '"]');
+      drawnPaths.forEach((path) => {
+        path.removeAttribute('opacity');
+        path.style.opacity = '1';
+      });
+
+      // 字帖参考笔画（田字格里的浅灰轮廓 + 写对后显示的标准笔画）改成淡红色，
+      // 和用户自己写的黑色笔画区分开，方便对比效果图。
+      const referenceStrokeColors = ['rgba(221,221,221,1)', 'rgba(43,43,43,1)'];
+      clone.querySelectorAll('path[stroke]').forEach((path) => {
+        if (referenceStrokeColors.includes(path.getAttribute('stroke'))) {
+          path.setAttribute('stroke', REFERENCE_COLOR);
+        }
+      });
+
+      let svgString = new XMLSerializer().serializeToString(clone);
+      // hanzi-writer 的 clip-path 引用带完整页面 URL（如 url("http://.../#mask-1")），
+      // 在 <img> 中作为独立文档渲染时无法解析，导致裁剪失效、笔画整体变成一大团。
+      // 去掉 URL 前缀，只保留 #fragment，使其在导出的图片里也能正确裁剪。
+      svgString = svgString.replace(/url\(&quot;https?:\/\/[^#&]*#/g, 'url(&quot;#');
       const svgData = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
 
       const canvas = document.createElement('canvas');
