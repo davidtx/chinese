@@ -119,7 +119,7 @@
       strokeColor: '#2b2b2b',
       outlineColor: '#dddddd',
       highlightColor: '#8aa9f7',
-      drawingWidth: 28,
+      drawingWidth: 8,
       highlightOnComplete: false,
     });
 

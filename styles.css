@@ -244,7 +244,7 @@ html, body {
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(440px, 100%), 1fr));
   gap: 12px;
   padding: 16px;
 }
