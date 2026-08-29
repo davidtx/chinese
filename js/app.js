@@ -9,6 +9,7 @@
   let currentWriter = null;
   let currentMistakeCount = 0;
   let charBoxSize = 300;
+  let hintEnabled = localStorage.getItem('hanzi-hint-enabled') === 'true';
 
   // ---- DOM ----
   const screens = {
@@ -27,6 +28,7 @@
   const btnBackInput2 = document.getElementById('btn-back-input-2');
   const practiceProgress = document.getElementById('practice-progress');
   const practiceMistakes = document.getElementById('practice-mistakes');
+  const hintToggleInput = document.getElementById('hint-toggle-input');
   const charBox = document.getElementById('char-box');
   const btnClear = document.getElementById('btn-clear');
   const btnNext = document.getElementById('btn-next');
@@ -72,6 +74,16 @@
     showScreen('input');
   });
 
+  // ---- 提示模式开关 ----
+  hintToggleInput.checked = hintEnabled;
+  hintToggleInput.addEventListener('change', () => {
+    hintEnabled = hintToggleInput.checked;
+    localStorage.setItem('hanzi-hint-enabled', String(hintEnabled));
+    if (currentWriter) {
+      startQuiz();
+    }
+  });
+
   // ---- 开始一次练习 ----
   function startPractice(rawText, chars) {
     currentChars = chars;
@@ -106,6 +118,7 @@
       delayBetweenStrokes: 100,
       strokeColor: '#2b2b2b',
       outlineColor: '#dddddd',
+      highlightColor: '#8aa9f7',
       drawingWidth: 28,
       highlightOnComplete: false,
     });
@@ -121,8 +134,10 @@
         currentMistakeCount += 1;
         practiceMistakes.textContent = `写错 ${currentMistakeCount} 次`;
       },
-      onCorrectStroke: function () {
-        // 每写对一笔可在此加反馈动效，目前保持简洁
+      onCorrectStroke: function (strokeData) {
+        if (hintEnabled && strokeData.strokesRemaining > 0) {
+          currentWriter.highlightStroke(strokeData.strokeNum + 1);
+        }
       },
       onComplete: function (summaryData) {
         // 用户描完整个字（笔画顺序判定完成）
@@ -130,6 +145,9 @@
           currentMistakeCount === 0 ? '全部正确！' : `写错 ${currentMistakeCount} 次`;
       },
     });
+    if (hintEnabled) {
+      currentWriter.highlightStroke(0);
+    }
   }
 
   // ---- 清除重写 ----
