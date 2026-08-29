@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>汉字描红练习</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- 屏幕一：输入页 -->
+  <section id="screen-input" class="screen active">
+    <div class="card">
+      <h1>汉字描红练习</h1>
+      <p class="hint">输入一行汉字，逐字描红练习</p>
+      <textarea id="input-text" placeholder="例如：春眠不觉晓" rows="2"></textarea>
+      <p id="input-error" class="error-msg"></p>
+      <button id="btn-start" class="btn btn-primary">开始练习</button>
+      <button id="btn-goto-history" class="btn btn-secondary">历史记录</button>
+    </div>
+  </section>
+
+  <!-- 屏幕二：描红练习页 -->
+  <section id="screen-practice" class="screen">
+    <div class="practice-header">
+      <button id="btn-back-input" class="btn-icon" title="返回">←</button>
+      <div id="practice-progress" class="progress-text">1 / 1</div>
+      <div id="practice-mistakes" class="mistakes-text"></div>
+    </div>
+
+    <div class="char-box-wrapper">
+      <div id="char-box" class="char-box">
+        <div id="character-target"></div>
+      </div>
+    </div>
+
+    <div class="practice-footer">
+      <button id="btn-clear" class="btn btn-secondary">清除重写</button>
+      <button id="btn-next" class="btn btn-primary">下一个</button>
+    </div>
+  </section>
+
+  <!-- 屏幕三：汇总展示页 -->
+  <section id="screen-summary" class="screen">
+    <div class="summary-header">
+      <h2>本次练习成果</h2>
+      <div id="summary-text" class="summary-text"></div>
+      <div id="summary-score" class="summary-score"></div>
+    </div>
+    <div id="summary-grid" class="summary-grid"></div>
+    <div class="summary-footer">
+      <button id="btn-restart" class="btn btn-primary">再练一行</button>
+    </div>
+  </section>
+
+  <!-- 屏幕四：历史记录页 -->
+  <section id="screen-history" class="screen">
+    <div class="history-header">
+      <button id="btn-back-input-2" class="btn-icon" title="返回">←</button>
+      <h2>历史记录</h2>
+    </div>
+    <div id="history-list" class="history-list"></div>
+  </section>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3/dist/hanzi-writer.min.js"></script>
+<script src="js/db.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
