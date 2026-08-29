@@ -3,6 +3,62 @@
   const CJK_REGEX = /[\u4e00-\u9fff]/;
   const DRAWING_WIDTH = 28;
   const REFERENCE_COLOR = '#f0a8a8'; // 效果图里字帖参考笔画的颜色（淡红色）
+  const DEFAULT_PRACTICE_TEXT = '春眠不觉晓';
+
+  // ---- 多语言 ----
+  const I18N = {
+    en: {
+      title: 'Chinese Character Tracing',
+      subtitle: 'Enter Chinese characters to trace them one by one',
+      placeholder: 'e.g. 春眠不觉晓 (leave blank to use the sample)',
+      start: 'Start',
+      history: 'History',
+      back: 'Back',
+      hint: 'Hint',
+      langToggleLabel: '中文',
+      clear: 'Clear',
+      next: 'Next',
+      done: 'Done',
+      mistakes: (n) => `${n} mistake${n === 1 ? '' : 's'}`,
+      allCorrect: 'All correct!',
+      errorNoChar: 'Please enter at least one Chinese character',
+      summaryTitle: 'Practice Results',
+      summaryScore: (correct, total) => `${correct} / ${total} correct on first try`,
+      restart: 'Practice Again',
+      historyTitle: 'History',
+      historyEmpty: 'No practice records yet',
+      historyMeta: (correct, total) => `${correct}/${total} correct on first try`,
+      dateLocale: 'en-US',
+    },
+    zh: {
+      title: '汉字描红练习',
+      subtitle: '输入一行汉字，逐字描红练习',
+      placeholder: '例如：春眠不觉晓（留空则使用示例）',
+      start: '开始练习',
+      history: '历史记录',
+      back: '返回',
+      hint: '提示',
+      langToggleLabel: 'English',
+      clear: '清除重写',
+      next: '下一个',
+      done: '完成',
+      mistakes: (n) => `写错 ${n} 次`,
+      allCorrect: '全部正确！',
+      errorNoChar: '请输入至少一个汉字',
+      summaryTitle: '本次练习成果',
+      summaryScore: (correct, total) => `${correct} / ${total} 个字一次写对`,
+      restart: '再练一行',
+      historyTitle: '历史记录',
+      historyEmpty: '还没有练习记录',
+      historyMeta: (correct, total) => `${correct}/${total} 一次写对`,
+      dateLocale: 'zh-CN',
+    },
+  };
+
+  let lang = localStorage.getItem('hanzi-lang') || 'en';
+  function t(key) {
+    return I18N[lang][key];
+  }
 
   // ---- 状态 ----
   let currentPractice = null; // { id, text, createdAt, chars: [] }
@@ -10,6 +66,7 @@
   let currentIndex = 0;
   let currentWriter = null;
   let currentMistakeCount = 0;
+  let quizCompleted = false;
   let charBoxSize = 300;
   let hintEnabled = localStorage.getItem('hanzi-hint-enabled') === 'true';
 
@@ -31,6 +88,8 @@
   const practiceProgress = document.getElementById('practice-progress');
   const practiceMistakes = document.getElementById('practice-mistakes');
   const hintToggleInput = document.getElementById('hint-toggle-input');
+  const hintLabel = document.getElementById('hint-label');
+  const langToggleBtn = document.getElementById('lang-toggle');
   const charBox = document.getElementById('char-box');
   const btnClear = document.getElementById('btn-clear');
   const btnNext = document.getElementById('btn-next');
@@ -48,12 +107,47 @@
     screens[name].classList.add('active');
   }
 
+  // ---- 多语言应用 ----
+  function applyLanguage() {
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+    document.getElementById('page-title').textContent = t('title');
+    document.getElementById('app-title').textContent = t('title');
+    document.getElementById('app-subtitle').textContent = t('subtitle');
+    inputText.placeholder = t('placeholder');
+    btnStart.textContent = t('start');
+    btnGotoHistory.textContent = t('history');
+    btnBackInput.title = t('back');
+    btnBackInput2.title = t('back');
+    hintLabel.textContent = t('hint');
+    langToggleBtn.textContent = t('langToggleLabel');
+    btnClear.textContent = t('clear');
+    btnNext.textContent =
+      currentChars.length && currentIndex === currentChars.length - 1 ? t('done') : t('next');
+    document.getElementById('summary-title').textContent = t('summaryTitle');
+    btnRestart.textContent = t('restart');
+    document.getElementById('history-title').textContent = t('historyTitle');
+    updateMistakesText();
+  }
+
+  langToggleBtn.addEventListener('click', () => {
+    lang = lang === 'en' ? 'zh' : 'en';
+    localStorage.setItem('hanzi-lang', lang);
+    applyLanguage();
+    if (screens.summary.classList.contains('active') && currentPractice) {
+      renderSummary(currentPractice);
+    }
+    if (screens.history.classList.contains('active')) {
+      renderHistory();
+    }
+  });
+
   // ---- 输入页 ----
   btnStart.addEventListener('click', () => {
-    const raw = inputText.value.trim();
+    let raw = inputText.value.trim();
+    if (raw === '') raw = DEFAULT_PRACTICE_TEXT;
     const chars = Array.from(raw).filter((c) => CJK_REGEX.test(c));
     if (chars.length === 0) {
-      inputError.textContent = '请输入至少一个汉字';
+      inputError.textContent = t('errorNoChar');
       return;
     }
     inputError.textContent = '';
@@ -75,6 +169,9 @@
   btnBackInput2.addEventListener('click', () => {
     showScreen('input');
   });
+
+  // ---- 初始应用语言 ----
+  applyLanguage();
 
   // ---- 提示模式开关 ----
   hintToggleInput.checked = hintEnabled;
@@ -99,12 +196,27 @@
     loadChar(currentIndex);
   }
 
+  // ---- 提示文字更新（写错次数 / 全部正确） ----
+  function updateMistakesText() {
+    if (!currentWriter) {
+      practiceMistakes.textContent = '';
+      return;
+    }
+    if (quizCompleted) {
+      practiceMistakes.textContent =
+        currentMistakeCount === 0 ? t('allCorrect') : t('mistakes')(currentMistakeCount);
+    } else {
+      practiceMistakes.textContent = currentMistakeCount > 0 ? t('mistakes')(currentMistakeCount) : '';
+    }
+  }
+
   // ---- 加载第 index 个字进行描红 ----
   function loadChar(index) {
     currentMistakeCount = 0;
+    quizCompleted = false;
     practiceMistakes.textContent = '';
     practiceProgress.textContent = `${index + 1} / ${currentChars.length}`;
-    btnNext.textContent = index === currentChars.length - 1 ? '完成' : '下一个';
+    btnNext.textContent = index === currentChars.length - 1 ? t('done') : t('next');
 
     const target = document.getElementById('character-target');
     target.innerHTML = '';
@@ -130,11 +242,12 @@
 
   function startQuiz() {
     currentMistakeCount = 0;
+    quizCompleted = false;
     practiceMistakes.textContent = '';
     currentWriter.quiz({
       onMistake: function () {
         currentMistakeCount += 1;
-        practiceMistakes.textContent = `写错 ${currentMistakeCount} 次`;
+        updateMistakesText();
       },
       onCorrectStroke: function (strokeData) {
         if (hintEnabled && strokeData.strokesRemaining > 0) {
@@ -143,8 +256,8 @@
       },
       onComplete: function (summaryData) {
         // 用户描完整个字（笔画顺序判定完成）
-        practiceMistakes.textContent =
-          currentMistakeCount === 0 ? '全部正确！' : `写错 ${currentMistakeCount} 次`;
+        quizCompleted = true;
+        updateMistakesText();
       },
     });
     if (hintEnabled) {
@@ -244,7 +357,7 @@
   function renderSummary(practice) {
     summaryText.textContent = practice.text;
     const correctCount = practice.chars.filter((c) => c.isCorrect).length;
-    summaryScore.textContent = `${correctCount} / ${practice.chars.length} 个字一次写对`;
+    summaryScore.textContent = t('summaryScore')(correctCount, practice.chars.length);
 
     summaryGrid.innerHTML = '';
     practice.chars.forEach((c) => {
@@ -281,7 +394,7 @@
     }
 
     if (records.length === 0) {
-      historyList.innerHTML = '<div class="history-empty">还没有练习记录</div>';
+      historyList.innerHTML = `<div class="history-empty">${t('historyEmpty')}</div>`;
       return;
     }
 
@@ -298,7 +411,7 @@
       const metaEl = document.createElement('div');
       metaEl.className = 'h-meta';
       const date = new Date(rec.createdAt);
-      metaEl.textContent = `${date.toLocaleString()} · ${correctCount}/${rec.chars.length} 一次写对`;
+      metaEl.textContent = `${date.toLocaleString(t('dateLocale'))} · ${t('historyMeta')(correctCount, rec.chars.length)}`;
       item.appendChild(metaEl);
 
       item.addEventListener('click', () => {

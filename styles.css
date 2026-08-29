@@ -128,6 +128,23 @@ html, body {
   text-align: right;
 }
 
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lang-toggle {
+  font-size: 13px;
+  color: #666;
+  background: #e5e1d8;
+  border: none;
+  border-radius: 10px;
+  padding: 5px 10px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
 .hint-toggle {
   display: flex;
   align-items: center;
