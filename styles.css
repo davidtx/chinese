@@ -375,3 +375,62 @@ html, body {
   color: #999;
   padding: 40px 0;
 }
+
+/* ---------- 选字练习页 ---------- */
+#screen-picker {
+  overflow-y: auto;
+  touch-action: pan-y;
+}
+
+.grade-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 16px 12px;
+}
+
+.grade-tab {
+  flex-shrink: 0;
+  font-size: 14px;
+  color: #666;
+  background: #e5e1d8;
+  border: none;
+  border-radius: 14px;
+  padding: 8px 16px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.grade-tab.active {
+  background: #d64545;
+  color: #fff;
+}
+
+.group-list {
+  padding: 8px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.group-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  border: 1px solid #eee;
+  cursor: pointer;
+  touch-action: manipulation;
+  text-align: left;
+}
+
+.group-card .g-label {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 6px;
+}
+
+.group-card .g-chars {
+  font-size: 28px;
+  letter-spacing: 10px;
+  color: #2b2b2b;
+}

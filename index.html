@@ -22,6 +22,7 @@
       <textarea id="input-text" placeholder="e.g. 春眠不觉晓" rows="2"></textarea>
       <p id="input-error" class="error-msg"></p>
       <button id="btn-start" class="btn btn-primary">Start</button>
+      <button id="btn-goto-picker" class="btn btn-secondary">Choose Characters</button>
       <button id="btn-goto-history" class="btn btn-secondary">History</button>
     </div>
   </section>
@@ -76,9 +77,20 @@
     <div id="history-list" class="history-list"></div>
   </section>
 
+  <!-- 屏幕五：选字练习页 -->
+  <section id="screen-picker" class="screen">
+    <div class="history-header">
+      <button id="btn-back-input-3" class="btn-icon" title="Back">←</button>
+      <h2 id="picker-title">Choose Characters</h2>
+    </div>
+    <div id="grade-tabs" class="grade-tabs"></div>
+    <div id="group-list" class="group-list"></div>
+  </section>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3/dist/hanzi-writer.min.js"></script>
+<script src="js/characterData.js"></script>
 <script src="js/db.js"></script>
 <script src="js/app.js"></script>
 </body>

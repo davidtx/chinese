@@ -29,6 +29,9 @@
       historyEmpty: 'No practice records yet',
       historyMeta: (correct, total) => `${correct}/${total} correct on first try`,
       dateLocale: 'en-US',
+      chooseCharacters: 'Choose Characters',
+      pickerTitle: 'Choose Characters',
+      groupLabel: (n) => `Group ${n}`,
     },
     zh: {
       title: '汉字描红练习',
@@ -52,6 +55,9 @@
       historyEmpty: '还没有练习记录',
       historyMeta: (correct, total) => `${correct}/${total} 一次写对`,
       dateLocale: 'zh-CN',
+      chooseCharacters: '选字练习',
+      pickerTitle: '选字练习',
+      groupLabel: (n) => `第 ${n} 组`,
     },
   };
 
@@ -76,15 +82,22 @@
     practice: document.getElementById('screen-practice'),
     summary: document.getElementById('screen-summary'),
     history: document.getElementById('screen-history'),
+    picker: document.getElementById('screen-picker'),
   };
 
   const inputText = document.getElementById('input-text');
   const inputError = document.getElementById('input-error');
   const btnStart = document.getElementById('btn-start');
   const btnGotoHistory = document.getElementById('btn-goto-history');
+  const btnGotoPicker = document.getElementById('btn-goto-picker');
 
   const btnBackInput = document.getElementById('btn-back-input');
   const btnBackInput2 = document.getElementById('btn-back-input-2');
+  const btnBackInput3 = document.getElementById('btn-back-input-3');
+  const pickerTitleEl = document.getElementById('picker-title');
+  const gradeTabsEl = document.getElementById('grade-tabs');
+  const groupListEl = document.getElementById('group-list');
+  let selectedGradeId = localStorage.getItem('hanzi-picker-grade') || (CHARACTER_GRADES[0] && CHARACTER_GRADES[0].id);
   const practiceProgress = document.getElementById('practice-progress');
   const practiceMistakes = document.getElementById('practice-mistakes');
   const hintToggleInput = document.getElementById('hint-toggle-input');
@@ -117,8 +130,11 @@
     inputText.placeholder = t('placeholder');
     btnStart.textContent = t('start');
     btnGotoHistory.textContent = t('history');
+    btnGotoPicker.textContent = t('chooseCharacters');
     btnBackInput.title = t('back');
     btnBackInput2.title = t('back');
+    btnBackInput3.title = t('back');
+    pickerTitleEl.textContent = t('pickerTitle');
     hintLabel.textContent = t('hint');
     langToggleBtn.textContent = t('langToggleLabel');
     langToggleInputBtn.textContent = t('langToggleLabel');
@@ -141,10 +157,64 @@
     if (screens.history.classList.contains('active')) {
       renderHistory();
     }
+    if (screens.picker.classList.contains('active')) {
+      renderPicker();
+    }
   }
 
   langToggleBtn.addEventListener('click', toggleLanguage);
   langToggleInputBtn.addEventListener('click', toggleLanguage);
+
+  // ---- 选字练习页 ----
+  function renderPicker() {
+    gradeTabsEl.innerHTML = '';
+    CHARACTER_GRADES.forEach((grade) => {
+      const tab = document.createElement('button');
+      tab.type = 'button';
+      tab.className = 'grade-tab' + (grade.id === selectedGradeId ? ' active' : '');
+      tab.textContent = grade.name[lang] || grade.name.en;
+      tab.addEventListener('click', () => {
+        selectedGradeId = grade.id;
+        localStorage.setItem('hanzi-picker-grade', selectedGradeId);
+        renderPicker();
+      });
+      gradeTabsEl.appendChild(tab);
+    });
+
+    const grade = CHARACTER_GRADES.find((g) => g.id === selectedGradeId) || CHARACTER_GRADES[0];
+    groupListEl.innerHTML = '';
+    if (!grade) return;
+    grade.groups.forEach((chars, i) => {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'group-card';
+
+      const label = document.createElement('div');
+      label.className = 'g-label';
+      label.textContent = t('groupLabel')(i + 1);
+      card.appendChild(label);
+
+      const charsEl = document.createElement('div');
+      charsEl.className = 'g-chars';
+      charsEl.textContent = chars.join(' ');
+      card.appendChild(charsEl);
+
+      card.addEventListener('click', () => {
+        startPractice(chars.join(''), chars);
+      });
+
+      groupListEl.appendChild(card);
+    });
+  }
+
+  btnGotoPicker.addEventListener('click', () => {
+    renderPicker();
+    showScreen('picker');
+  });
+
+  btnBackInput3.addEventListener('click', () => {
+    showScreen('input');
+  });
 
   // ---- 输入页 ----
   btnStart.addEventListener('click', () => {
