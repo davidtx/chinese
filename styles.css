@@ -166,6 +166,30 @@ html, body {
   touch-action: manipulation;
 }
 
+.speak-btn {
+  font-size: 16px;
+  line-height: 1;
+  background: #e5e1d8;
+  border: none;
+  border-radius: 10px;
+  padding: 6px 9px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.speak-btn.hidden {
+  display: none;
+}
+
+.pinyin-display {
+  text-align: center;
+  font-size: 20px;
+  color: #8aa9f7;
+  font-weight: 600;
+  min-height: 26px;
+  padding: 4px 16px 0;
+}
+
 .hint-toggle {
   display: flex;
   align-items: center;

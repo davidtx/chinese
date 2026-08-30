@@ -32,6 +32,7 @@
       chooseCharacters: 'Choose Characters',
       pickerTitle: 'Choose Characters',
       groupLabel: (n) => `Group ${n}`,
+      speakTitle: 'Play pronunciation',
     },
     zh: {
       title: '汉字描红练习',
@@ -58,6 +59,7 @@
       chooseCharacters: '选字练习',
       pickerTitle: '选字练习',
       groupLabel: (n) => `第 ${n} 组`,
+      speakTitle: '朗读发音',
     },
   };
 
@@ -107,6 +109,8 @@
   const charBox = document.getElementById('char-box');
   const btnClear = document.getElementById('btn-clear');
   const btnNext = document.getElementById('btn-next');
+  const pinyinDisplay = document.getElementById('pinyin-display');
+  const btnSpeak = document.getElementById('btn-speak');
 
   const summaryText = document.getElementById('summary-text');
   const summaryScore = document.getElementById('summary-score');
@@ -138,6 +142,7 @@
     hintLabel.textContent = t('hint');
     langToggleBtn.textContent = t('langToggleLabel');
     langToggleInputBtn.textContent = t('langToggleLabel');
+    btnSpeak.title = t('speakTitle');
     btnClear.textContent = t('clear');
     btnNext.textContent =
       currentChars.length && currentIndex === currentChars.length - 1 ? t('done') : t('next');
@@ -248,6 +253,33 @@
   // ---- 初始应用语言 ----
   applyLanguage();
 
+  // ---- 语音朗读 ----
+  let zhVoice = null;
+  function pickZhVoice() {
+    if (!window.speechSynthesis) return null;
+    const voices = window.speechSynthesis.getVoices();
+    return voices.find((v) => v.lang && v.lang.toLowerCase().startsWith('zh')) || null;
+  }
+  function updateSpeakAvailability() {
+    zhVoice = pickZhVoice();
+    btnSpeak.classList.toggle('hidden', !zhVoice);
+  }
+  if (window.speechSynthesis) {
+    updateSpeakAvailability();
+    window.speechSynthesis.addEventListener('voiceschanged', updateSpeakAvailability);
+  } else {
+    btnSpeak.classList.add('hidden');
+  }
+
+  btnSpeak.addEventListener('click', () => {
+    if (!window.speechSynthesis || !currentChars.length) return;
+    const utterance = new SpeechSynthesisUtterance(currentChars[currentIndex]);
+    utterance.lang = 'zh-CN';
+    if (zhVoice) utterance.voice = zhVoice;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  });
+
   // ---- 提示模式开关 ----
   hintToggleInput.checked = hintEnabled;
   hintToggleInput.addEventListener('change', () => {
@@ -292,6 +324,9 @@
     practiceMistakes.textContent = '';
     practiceProgress.textContent = `${index + 1} / ${currentChars.length}`;
     btnNext.textContent = index === currentChars.length - 1 ? t('done') : t('next');
+    pinyinDisplay.textContent = window.pinyinPro
+      ? window.pinyinPro.pinyin(currentChars[index], { toneType: 'symbol' })
+      : '';
 
     const target = document.getElementById('character-target');
     target.innerHTML = '';
