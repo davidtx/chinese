@@ -211,7 +211,9 @@
       card.appendChild(charsEl);
 
       card.addEventListener('click', () => {
-        startPractice(chars.join(''), chars);
+        const rawText = chars.join('');
+        const singleChars = Array.from(rawText).filter((c) => CJK_REGEX.test(c));
+        startPractice(rawText, singleChars);
       });
 
       groupListEl.appendChild(card);
