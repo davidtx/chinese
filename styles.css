@@ -183,11 +183,12 @@ html, body {
 
 .pinyin-display {
   text-align: center;
-  font-size: 20px;
-  color: #8aa9f7;
+  font-size: 30px;
+  color: #b3714a;
   font-weight: 600;
-  min-height: 26px;
-  padding: 4px 16px 0;
+  min-height: 36px;
+  margin-bottom: 6px;
+  letter-spacing: 1px;
 }
 
 .hint-toggle {
@@ -242,6 +243,13 @@ html, body {
   align-items: center;
   justify-content: center;
   padding: 8px;
+  min-height: 0;
+}
+
+.char-box-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   min-height: 0;
 }
 
@@ -349,6 +357,16 @@ html, body {
 
 .summary-footer .btn {
   width: 100%;
+}
+
+.summary-footer-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.summary-footer-row .btn {
+  flex: 1;
 }
 
 /* ---------- 历史页 ---------- */

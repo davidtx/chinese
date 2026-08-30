@@ -33,6 +33,7 @@
       pickerTitle: 'Choose Characters',
       groupLabel: (n) => `Group ${n}`,
       speakTitle: 'Play pronunciation',
+      home: 'Home',
     },
     zh: {
       title: '汉字描红练习',
@@ -60,6 +61,7 @@
       pickerTitle: '选字练习',
       groupLabel: (n) => `第 ${n} 组`,
       speakTitle: '朗读发音',
+      home: '首页',
     },
   };
 
@@ -116,6 +118,8 @@
   const summaryScore = document.getElementById('summary-score');
   const summaryGrid = document.getElementById('summary-grid');
   const btnRestart = document.getElementById('btn-restart');
+  const btnSummaryPicker = document.getElementById('btn-summary-picker');
+  const btnSummaryHome = document.getElementById('btn-summary-home');
 
   const historyList = document.getElementById('history-list');
 
@@ -148,6 +152,8 @@
       currentChars.length && currentIndex === currentChars.length - 1 ? t('done') : t('next');
     document.getElementById('summary-title').textContent = t('summaryTitle');
     btnRestart.textContent = t('restart');
+    btnSummaryPicker.textContent = t('chooseCharacters');
+    btnSummaryHome.textContent = t('home');
     document.getElementById('history-title').textContent = t('historyTitle');
     updateMistakesText();
   }
@@ -212,12 +218,20 @@
     });
   }
 
-  btnGotoPicker.addEventListener('click', () => {
+  function goToPicker() {
     renderPicker();
     showScreen('picker');
-  });
+  }
+
+  btnGotoPicker.addEventListener('click', goToPicker);
+  btnSummaryPicker.addEventListener('click', goToPicker);
 
   btnBackInput3.addEventListener('click', () => {
+    showScreen('input');
+  });
+
+  btnSummaryHome.addEventListener('click', () => {
+    inputText.value = '';
     showScreen('input');
   });
 
@@ -489,8 +503,9 @@
   }
 
   btnRestart.addEventListener('click', () => {
-    inputText.value = '';
-    showScreen('input');
+    if (!currentPractice) return;
+    const chars = currentPractice.chars.map((c) => c.char);
+    startPractice(currentPractice.text, chars);
   });
 
   // ---- 历史记录 ----
