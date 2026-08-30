@@ -380,6 +380,7 @@ html, body {
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
+  flex-shrink: 0;
 }
 
 .history-header h2 {
@@ -429,6 +430,7 @@ html, body {
   gap: 8px;
   overflow-x: auto;
   padding: 4px 16px 12px;
+  flex-shrink: 0;
 }
 
 .grade-tab {
